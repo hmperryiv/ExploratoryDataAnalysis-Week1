@@ -1,0 +1,33 @@
+```{r}
+#Step 0: add libraries
+library(ggplot2)
+library(tibble)
+library(lubridate)
+library(dplyr)
+library(readr)
+
+
+if(!dir.exists("./data")) {
+  dir.create("./data")
+}
+setwd("./data")
+list.files()
+
+startDate <- mdy("02012007")
+endDate <- mdy("02022007")
+
+
+household_power_dataset <- read_delim("household_power_consumption.txt", delim=";", col_names = c("recordDate", "recordTime", "globalActivePower", "globalReactivePower", "voltage", "globalIntensity", "subMetering1", "subMetering2", "subMetering3"), skip = 1, col_types = cols(col_date("%d/%m/%Y"), col_time(), col_number(), col_number(), col_number(), col_number(), col_number(), col_number(), col_number()))
+
+
+household_power_dataset <- filter(household_power_dataset, (recordDate - startDate ==0) |(recordDate  - endDate == 0))
+
+
+ggplot(data=household_power_dataset, aes(household_power_dataset$globalActivePower)) + geom_histogram(breaks= seq(0,7, by=.4),color="black", fill="red", bin=12) + xlim(c(0,7)) + ylim(c(0,1200))  + labs(title="Global Active Power", x="Global Active Power (kilowatts)", y="Frequency") + theme_classic()
+
+getwd()
+setwd("..")
+dev.copy(png, "plot1.png")
+dev.off()
+```
+

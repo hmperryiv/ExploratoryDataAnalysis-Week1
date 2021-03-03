@@ -1,0 +1,36 @@
+```{r}
+#Step 0: add libraries
+library(ggplot2)
+library(tibble)
+library(lubridate)
+library(dplyr)
+library(readr)
+
+
+if(!dir.exists("./data")) {
+  dir.create("./data")
+}
+setwd("./data")
+list.files()
+
+startDate <- mdy("02012007")
+endDate <- mdy("02022007")
+
+
+household_power_dataset <- read_delim("household_power_consumption.txt", delim=";", col_names = c("recordDate", "recordTime", "globalActivePower", "globalReactivePower", "voltage", "globalIntensity", "subMetering1", "subMetering2", "subMetering3"), skip = 1, col_types = cols(col_date("%d/%m/%Y"), col_time(), col_number(), col_number(), col_number(), col_number(), col_number(), col_number(), col_number()))
+
+
+household_power_dataset <- filter(household_power_dataset, (recordDate - startDate ==0) |(recordDate  - endDate == 0))
+
+household_power_dataset <- add_column(household_power_dataset, recordDateTime = as.POSIXct(paste(household_power_dataset$recordDate, household_power_dataset$recordTime), format="%Y-%m-%d %H:%M:%S"))
+
+ggplot(data=household_power_dataset, aes(x=recordDateTime, y=globalActivePower)) +
+    geom_line() + scale_x_datetime(date_breaks = "1 day", date_labels = "%a")+ ylim(0,6) + labs(x="", y="Global Active Power") + theme_classic()
+
+
+
+setwd("..")
+dev.copy(png, "plot2.png")
+dev.off()
+```
+
